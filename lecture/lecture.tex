@@ -1,0 +1,387 @@
+\documentclass[aspectratio=169]{beamer}
+\usefonttheme{serif}
+\usepackage{xeCJK}
+\usepackage{fontspec}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{indentfirst}
+\usepackage{tikz}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{ulem}
+\usepackage{version}
+\usepackage{thmtools}
+\usepackage{qtree}
+\usepackage{algpseudocode}
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{xcolor}
+% \usepackage[colorlinks,linkcolor=blue]{hyperref}
+
+\AtBeginDocument{%
+    \DeclareSymbolFont{pureletters}{T1}{\mathfamilydefault}{\mddefault}{it}%
+    }
+
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip = 0pt plus 1pt
+
+\setCJKmainfont{NotoSansTC-Medium.otf}
+\setmainfont{JetBrainsMono-SemiBold.ttf}
+\usetikzlibrary{arrows,decorations.markings,decorations.pathreplacing}
+\newenvironment{Hint}{\noindent\textbf{Hint.}}{}
+
+\tikzstyle {graph node} = [circle, draw, minimum width=1cm]
+\tikzset{edge/.style = {decoration={markings,mark=at position 1 with %
+            {\arrow[scale=2,>=stealth]{>}}},postaction={decorate}}}
+
+\lstset{
+    basicstyle=\ttfamily\normalsize,
+    numberstyle=\normalsize,
+    numbers=left,
+    stepnumber=1,
+    numbersep=3pt,
+    commentstyle=\color{black!50},
+    keywordstyle=\color{white!0!blue},
+    stringstyle=\color{black!50!green},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    escapeinside={\%*}{*)},
+    morekeywords={*}
+}
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\title{枚舉 Enumerate}
+\subtitle{2023 SCIST x NHDK x 南 11 校寒訓}
+\author{Koying}
+\date{2023-01-30}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\setbeamertemplate{itemize items}[square]
+\setbeamertemplate{enumerate items}[default]
+\setbeamertemplate{blocks}[default]
+\lstdefinestyle{myStyle}{
+    belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    frame=none,
+    numbers=none, 
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\bfseries\color{green!40!black},
+    commentstyle=\itshape\color{purple!40!black},
+    identifierstyle=\color{blue},
+    backgroundcolor=\color{gray!10!white},
+}
+
+\begin{document}
+
+    \begin{frame}
+        \titlepage
+    \end{frame}
+
+
+    \begin{frame}{目錄}
+        \begin{itemize}
+            \item 枚舉介紹
+            \item 有限度的枚舉
+            \item 聰明的枚舉
+            \item 位元枚舉
+            \item 折半枚舉
+            \item 全排列枚舉
+        \end{itemize}
+    \end{frame}
+
+    \section{枚舉入門}
+
+    \begin{frame}{枚舉入門}
+        \begin{itemize}
+            \item<1-> 什麼是枚舉？
+            \item<2-> 簡單來說就是暴力解
+            \item<3-> 利用迴圈或是遞迴等最樸素的方法，將所有可能的情況，也就是「狀態」都列出來，以找到答案
+            \item<3-> 可說是競程中最基本的技巧，許多的演算法都是由簡單的枚舉演變而來
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{枚舉入門}
+        我們先來個簡單的例題
+        \begin{block}{\href{https://codeforces.com/group/H0qY3QmnOW/contest/366708/problem/E}{TPR 16E. 倒水問題}}
+            有一杯 $N$ 毫升的水，每次可以倒出 $a$ 或是 $b$ 毫升，但這兩種操作都只能各自使用最多 $10$ 次 \\
+            請問哪個方案最多可以倒出多少毫升的水，且水杯內至少來剩下 $K$ 毫升？如果有多種答案，輸出使用第一種操作最多次的方案
+        \end{block}
+
+        \begin{itemize}
+            \item<1-> 相信聰明的大家都可以想到，只需要枚舉 $a$ 和 $b$ 的使用次數，然後計算出最大的答案即可
+            \item<2-> 但，這就代表枚舉很簡單嗎？
+            \item<3-> 事實上，雖然最基本的枚舉技巧很簡單，但為了獲得最好的效能，所以有非常多種優化方法值得我們去學習
+            \item<4-> 像講師我就是為了學枚舉才來當枚舉講師的
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{枚舉入門}
+        \begin{block}{簡單的題目}
+            給一整數 $n\ (n \le 10^{15})$，求出 $n$ 的所有因數
+        \end{block}
+
+        \begin{itemize}
+            \item<1-> 一個最樸素的方法便是枚舉所有數字，看有幾個數字能夠整除 $n$
+            \item<1-> 而這樣的時間複雜度會是 $\mathcal{O}(n)$，這樣顯然太慢了
+            \item<2-> 但有學過國中數學（？的就會知道，只需要枚舉 $2 \sim \sqrt{n}$ 就可以了
+            \item<2-> 因為只要求出 $\le \sqrt{n}$ 的所有因數，那麼 $> \sqrt{n}$ 的因數也就可以找到
+            \item<3-> 如此一來時間複雜度就降到了 $\mathcal{O}(\sqrt{n})$
+        \end{itemize}
+    \end{frame}
+
+    \section{有限度的枚舉}
+
+    \begin{frame}{有限度的枚舉}
+        \begin{itemize}
+            \item 剛剛的例子，其實就是一種「有限度的枚舉」
+            \item 透過一些數學技巧或是一些關鍵性值，將枚舉的範圍縮小，進而優化時間複雜度
+        \end{itemize}
+    \end{frame}
+
+
+    \begin{frame}{有限度的枚舉}
+        \begin{block}{\href{https://codeforces.com/problemset/problem/1490/C}{CF 1490C. Sum of Cubes}}
+            給一正整數 $n\ (n \le 10^{12})$，求是否存在兩個正整數 $a, b$，使得 $a^3 + b^3 = n$
+        \end{block}
+
+        \begin{itemize}
+            \item<1-> 一樣先想樸素解，我們可以枚舉 $a, b$，是否符合條件，時間複雜度 $\mathcal{O}(10^{12^2})$
+            \item<2-> 有沒有辦法將範圍縮小呢？
+            \item<3-> 我們可以發現，由於 $n \le 10^{12}$ 當 $a, b > 10^4$ 時，$a^3 + b^3$ 就會超出範圍
+            \item<3-> 因此，$a, b$ 的枚舉範圍就被縮小到了 $10^4$，時間複雜度 $\mathcal{O}(10^8)$，還是可能會 TLE
+            \item<4-> 我們可以發現，原本的數學式 $a^3 + b^3 = n$ 經過移項之後，可以變成 $n - a^3 = b^3$
+            \item<4-> 因此，我們只需要枚舉 $a$，最後檢查 $b$ 是否存在就可以了！時間複雜度 $\mathcal{O}(10^4)$，AC！
+            \item<4-> 至於如何檢查 $b$ 是否存在，則可以使用二分搜或是預先建立立方表的形式
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{有限度的枚舉}
+        \begin{block}{\href{https://codeforces.com/problemset/problem/1541/B}{CF 1541B. Pleasant Pairs}}
+            給 $n$ 個正整數 $a_1, a_2, \dots, a_n\ (1 \le a_i \le 2 \cdot n)$，且每個數都不相同，
+            求出有多少對 $(i, j)$ 滿足 $i < j, a_i \cdot a_j = i + j$
+        \end{block}
+
+        \begin{itemize}
+            \item<1-> 直接枚舉 $i, j$ 的話複雜度 $\mathcal{O}(n^2)$，TLE
+            \item<2-> 那這題有什麼關鍵性質嗎？
+            \item<3-> 觀察一下範圍，發現 $a_i \le 2 \cdot n$ 且每個數都不相同好像很可疑
+            \item<4-> 再觀察一下式子，發現 $i + j$ 最多就是 $2n$
+            \item<5-> 利用這個關鍵性質縮小枚舉的範圍，也就是對於任意一個 $a_i$，
+            我們就只需要枚舉符合 $a_j \le \lceil \frac{2n}{a_i} \rceil$ 的 $j$ 即可，根據調和級數，時間複雜度 $\mathcal{O}(nlogn)$
+            \item<6-> 至於如何找到適合的 $j$？簡單，pair / struct 排序！
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{例題}
+        \begin{block}{\href{https://codeforces.com/problemset/problem/1490/C}{CF 1490C. Sum of Cubes}}
+            給一正整數 $n\ (n \le 10^{12})$，求是否存在兩個正整數 $a, b$，使得 $a^3 + b^3 = n$
+        \end{block}
+
+        \begin{block}{\href{https://codeforces.com/problemset/problem/1541/B}{CF 1541B. Pleasant Pairs}}
+            給 $n$ 個正整數 $a_1, a_2, \dots, a_n\ (1 \le a_i \le 2 \cdot n)$，且每個數都不相同，
+            求出有多少對 $(i, j)$ 滿足 $i < j, a_i \cdot a_j = i + j$
+        \end{block}
+
+        \begin{block}{\href{https://codeforces.com/group/H0qY3QmnOW/contest/377732/problem/A}{TPR 20A. 飲品調配}}
+            有三變數 $a, b, c$ 滿足 $a + b + c = N, 0 \le a, b, c \le N, a, b, c \in \mathbb{Z}^+_0$，求 $2022 + \lvert b - c \rvert + ab + bc + c^2 - \lvert b^2 - a^2 \rvert$
+        \end{block}
+    \end{frame}
+
+    \section{聰明的枚舉}
+
+    \begin{frame}{聰明的枚舉}
+        \begin{block}{\href{https://cses.fi/problemset/task/1081}{CSES Common Divisors}}
+            給 $n$ 個數字 $x_1, x_2, ..., x_n\ (n \le 2 \times 10^5, x_i \le 10^6)$\\
+            求出一個最大的數字 $ans$，滿足其為 $x$ 中任意兩個數字 $x_i, x_j$ 的最大公因數
+        \end{block}
+
+        \begin{itemize}
+            \item<1-> 枚舉 $i, j$，時間複雜度 $\mathcal{O}(n^2)$，TLE
+            \item<2-> 這時候枚舉答案就派上用場了
+            \item<3-> 假設有一個函數 $f(x)$ 代表 $x$ 出現的次數
+            \item<3-> 那麼對於一個數 $a$，其滿足 $a$ 為 $gcd(x_i, x_j)$ 的條件就是：
+            $\displaystyle\sum_{k = 1}^{\lceil \frac{10^6}{a} \rceil}{f(ak)} \ge 2$
+            \item<4-> 根據調和級數，$\displaystyle\sum_{i = 1}^{n}{\frac{n}{i}} \approx nlogn$，AC！
+            \item<5-> 至於 $f()$ 的計算，則是利用陣列即可
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{例題}
+        \begin{block}{\href{https://cses.fi/problemset/task/1081}{CSES Common Divisors}}
+            給 $n$ 個數字 $x_1, x_2, ..., x_n\ (n \le 2 \times 10^5, x_i \le 10^6)$\\
+            求出一個最大的數字 $ans$，滿足其為 $x$ 中任意兩個數字 $x_i, x_j$ 的最大公因數
+        \end{block}
+
+        \begin{block}{\href{https://atcoder.jp/contests/arc124/tasks/arc124_b}{ARC 123B}}
+            給兩個數列 $a, b$， 
+        \end{block}
+
+        \begin{block}{\href{https://codeforces.com/problemset/problem/1494/B}{CF 1494B. Berland Crossword}}
+            給 $5$ 個正整數 $n, U, D, R, L$，代表這是一個 $n \cdot n$ ，由黑白格子組成的棋盤，最上面那排有 $U$ 個黑格子、最下面那排有 $D$ 個 $\dots$ 以此類推\\
+            求任意一種塗色方法是否能滿足條件
+        \end{block}
+        
+        
+    \end{frame}
+
+    \section{位元枚舉}
+
+    \begin{frame}{位元}
+        \begin{itemize}
+            \item<1-> 首先，我們得先了解一下二進位制
+            \item<1-> 二進位的每一位都是 0 或 1，分別代表 2 的每個冪次是有還是沒有
+            \item<1-> 舉個例子：$5 = 101_{(2)}$ 意思就是他是 $1 \cdot 2^2 + 0 \cdot 2^1 + 1 \cdot 2^0$ 組成的
+            \item<2-> 我們經常利用二進位來表示第 $i$ 個元素的狀態，例如 $101_{(2)}$ 就代表第 $1, 3$ 個元素是有的，第 $2$ 個元素是沒有的
+            \item<2-> 這種特性剛好能夠用來處理枚舉中「需要列出所有狀態」的問題
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{位元的各種操作}
+        \begin{itemize}
+            \item $2^i$：1 << i，<< 代表的是左移，也就是乘上 2
+            \item 取出第 $i$ 位的狀態：x \& (1 << i)，如果第 $i$ 位是 1，則會回傳 $2^i$，否則為 $0$
+            \item 將第 $i$ 位設為 1：x |= (1 << i)
+            \item 將第 $i$ 位設為 0：x \&= $\sim$(1 << i)
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{位元枚舉}
+        \begin{block}{\href{https://cses.fi/problemset/task/1623}{CSES 1623 Apple Division}}
+            你有 $n,\ (n \le 20)$ 顆蘋果，每顆蘋果的重量為 $p_i$，請將這些蘋果分成兩堆，使得兩堆的重量差最小
+        \end{block}
+
+        \begin{itemize}
+            \item<1-> 不難觀察到，蘋果只有兩種狀態：在第一堆或是第二堆
+            \item<2-> 以 $0$ 代表在第一堆，$1$ 代表在第二堆
+            \item<3-> 對於每種狀態，利用迴圈算出兩堆的重量差，並更新答案，時間複雜度 $\mathcal{O}(2^n)$
+            \item<4-> 啪！AC，位元枚舉就是這麼簡單
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{關於位元枚舉}
+        \begin{itemize}
+            \item 通常位元枚舉的複雜度都是 $\mathcal{O}(2^n)$（如果狀態是 0、1、2 的話可能會是 $3^n$），因此看到 $n \le 25$ 都可能是位元枚舉的題目
+            \item 位元枚舉也經常配合其他演算法，像是位元 DP 等
+            \item 有時候也能使用枚舉 II 會講到的遞迴枚舉來代替位元枚舉，只是遞迴的常數會較大
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{例題}
+        \begin{block}{\href{https://cses.fi/problemset/task/1623}{CSES 1623 Apple Division}}
+            你有 $n$ 顆蘋果，每顆蘋果的重量為 $p_i$，請將這些蘋果分成兩堆，使得兩堆的重量差最小
+        \end{block}
+
+        \begin{block}{\href{https://atcoder.jp/contests/abc197/tasks/abc197_c}{ABC 197C - ORXOR}}
+            對於一個有 $n$ 個數字的數列 $a\ (n \le 20, a_i \le 2^30)$，請將其分為數個連續區間，
+            先將每個區間內的元素做 OR 運算，再將所有區間的結果做 XOR 運算，使得最後的結果最大
+        \end{block}
+
+        \begin{block}{\href{https://atcoder.jp/contests/abc100/tasks/abc100_d}{ABC 100D - Patisserie ABC}}
+            總共有 $n$ 個蛋糕，對於第 $i$ 個蛋糕，有 $3$ 個數值 $x_i, y_i, z_i$，
+            請選出 $m$ 個蛋糕，使得 $\lvert \sum{x_i} \rvert + \lvert \sum{y_i} \rvert + \lvert \sum{z_i} \rvert$ 最大
+        \end{block}
+
+    \end{frame}
+    
+    \begin{frame}{例題}
+        \begin{block}{\href{https://zerojudge.tw/ShowProblem?problemid=f162}{ZJ F162（108 全國能競 P4）}}
+            見原題
+        \end{block}
+        
+        \begin{block}{\href{https://codeforces.com/group/H0qY3QmnOW/contest/376232/problem/D}{NHDK TPR 17D. Coding 夢之國的過年分配問題}}
+            位元枚舉作為子題解法的例子
+        \end{block}
+    \end{frame}
+
+    \section{折半枚舉}
+
+    \begin{frame}{折半枚舉}
+        \begin{block}{\href{https://judge.tcirc.tw/ShowProblem?problemid=d019}{AP325 子集合的和}}
+            有一個長度 $\le 38$ 的數列 $A$，請求出一個子集合 $S$ 使得 $S$ 的和最接近 $P$
+        \end{block}
+
+        \begin{itemize}
+            \item<1-> 前面提到，位元枚舉適用於 $n \le 25$ 的情況，那如果 $n \le 40$ 呢？
+            \item<2-> 這時候就是折半枚舉派上用場的地方了，步驟如下：
+        \end{itemize}
+
+        \begin{enumerate}
+            \item 將數列分成兩半
+            \item 分別位元枚舉，並將前半的結果記錄下來
+            \item 利用二分搜，為後半找到最好的前半
+        \end{enumerate}
+    \end{frame}
+
+    \begin{frame}{折半枚舉}
+        \begin{itemize}
+            \item 折半枚舉算是一個比較不特別的技巧，因此在比賽中也比較少獨立出現
+            \item 但折半枚舉經常會搭配一些 STL，或者是出現在子任務中，學會這個技巧經常可以在一些關鍵時刻派上用場
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{例題}
+        \begin{block}{\href{https://judge.tcirc.tw/ShowProblem?problemid=d019}{AP325 子集合的和}}
+            有一個長度 $\le 38$ 的數列 $A$，請求出一個子集合 $S$ 使得 $S$ 的和最接近 $P$
+        \end{block}
+
+        \begin{block}{\href{https://cses.fi/problemset/task/1628/}{CSES Meet in the Middle}}
+            有 $n$ 個數字 $t_1, t_2, \dots, t_n (n \le 40)$，求有幾種子集 $S$ 滿足 $\sum S = x$
+        \end{block}
+
+        \begin{block}{\href{https://codeforces.com/problemset/problem/888/E}{CF 888E. Maximum Subsequence}}
+            有 $n$ 個元素 $(n \le 35)$，求一個子集合 $b$ 滿足 $\sum{b_i \mod m}$ 最大
+        \end{block}
+
+        \begin{block}{\href{https://codeforces.com/problemset/problem/1006/F}{CF 1006F. Xor-Paths}}
+            有一張 $n \times m\ (n, m \le 20)$ 的方格圖，每個格子上都有一個數字，
+            求 $(1, 1) \rightarrow (n, m)$ 途中經過所有數字 xor 起來的值最大
+        \end{block}
+    \end{frame}
+
+
+    \section{全排列枚舉}
+
+    \begin{frame}{全排列枚舉}
+        \begin{itemize}
+            \item<1-> 全排列指的是將一個數列或是元素的所有排列方式
+            \item<1-> 例如 $\{1, 2, 3\}$ 的全排列就有 $6$ 種
+            \item<2-> 而 C++ 中有兩種函式可以幫助我們產生全排列
+            \begin{itemize}
+                \item<2-> next\_permutation(begin, end)：字典序由小到大生成
+                \item<2-> prev\_permutation(begin, end)：字典序由大到小生成
+            \end{itemize}
+            \item<3-> 雖然不常有滿分解是全排列枚舉的題目，但是是個很好的拿分技巧
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{例題}
+        \begin{block}{\href{https://zerojudge.tw/ShowProblem?problemid=e446}{ZJ e446. 排列生成}}
+            排列出 $1 \sim N$ 的所有排列，依照字典序由小到大排列
+        \end{block}
+
+        \begin{block}{\href{https://codeforces.com/group/H0qY3QmnOW/contest/339497/problem/H2}{TPR 12H2. 奇數偶數全排列}}
+            請見原題，利用全排列枚舉寫出簡短的答案
+        \end{block}
+    \end{frame}
+
+\end{document}
