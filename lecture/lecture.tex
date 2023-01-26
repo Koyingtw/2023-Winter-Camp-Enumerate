@@ -20,17 +20,18 @@
 \usepackage{mathtools}
 \usepackage{multicol}
 \usepackage{xcolor}
-% \usepackage[colorlinks,linkcolor=blue]{hyperref}
+\usepackage{ulem}
 
 \AtBeginDocument{%
-    \DeclareSymbolFont{pureletters}{T1}{\mathfamilydefault}{\mddefault}{it}%
-    }
+    \DeclareSymbolFont{pureletters}{T1}{lmr}{\mddefault}{it}%
+}
 
 \XeTeXlinebreaklocale "zh"
 \XeTeXlinebreakskip = 0pt plus 1pt
 
 \setCJKmainfont{NotoSansTC-Medium.otf}
 \setmainfont{JetBrainsMono-SemiBold.ttf}
+
 \usetikzlibrary{arrows,decorations.markings,decorations.pathreplacing}
 \newenvironment{Hint}{\noindent\textbf{Hint.}}{}
 
@@ -233,7 +234,7 @@
         \end{block}
 
         \begin{block}{\href{https://atcoder.jp/contests/arc124/tasks/arc124_b}{ARC 123B}}
-            給兩個數列 $a, b$， 
+            給兩個數列 $a, b$，問是否有一個整數 $x$ 使得 $a$ 中的每個元素 $a_i$ 都能各自找到一個對應的 $b_j$ 滿足 $a_i \text{ xor } b_j = x$
         \end{block}
 
         \begin{block}{\href{https://codeforces.com/problemset/problem/1494/B}{CF 1494B. Berland Crossword}}
