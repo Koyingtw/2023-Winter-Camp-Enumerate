@@ -97,6 +97,10 @@
     \begin{frame}
         \titlepage
     \end{frame}
+    
+    \begin{frame}
+        \includegraphics[width=\textwidth]{./img/SCIST_Sponser.png}
+    \end{frame}
 
 
     \begin{frame}{目錄}
@@ -211,8 +215,23 @@
     \section{聰明的枚舉}
 
     \begin{frame}{聰明的枚舉}
+        \begin{block}{\href{https://atcoder.jp/contests/abc194/tasks/abc194_c}{ABC 194C - Squared Error}}
+            給一個數列 $A_1, A_2, \dots, A_n$，求 $\displaystyle\sum_{i = 2}^{N}{\sum_{j = 1}^{i - 1}{(A_i - A_j) ^ 2}}\ (N \le 3 \cdot 10^5)$
+        \end{block}
+
+        \begin{itemize}
+            \item<1-> 這範圍也太大了吧，直接枚舉 $i, j$ 肯定會 TLE
+            \item<2-> 俗話說得好，沒看出東西就先展開
+            \item<3-> 展開後，我們得到了 $\displaystyle\sum_{i = 2}^{N}{\sum_{j = 1}^{i - 1}{A_i ^ 2 + A_j ^ 2 - 2A_iA_j}}$
+            \item<4-> $A_i ^ 2 + A_j ^ 2$ 肯定是很好求，但是 $-2A_iA_j$ 怎麼辦呢？
+            \item<5-> 沒關係，我們再移項一下便可得到 $\displaystyle\sum_{i = 2}^{N}{-2A_i \cdot \sum_{j = 1}^{i - 1}{A_j}}$
+            \item<6-> Trivial la！前綴和搞定
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{聰明的枚舉}
         \begin{block}{\href{https://cses.fi/problemset/task/1081}{CSES Common Divisors}}
-            給 $n$ 個數字 $x_1, x_2, ..., x_n\ (n \le 2 \times 10^5, x_i \le 10^6)$\\
+            給 $n$ 個數字 $x_1, x_2, \dots , x_n\ (n \le 2 \times 10^5, x_i \le 10^6)$\\
             求出一個最大的數字 $ans$，滿足其為 $x$ 中任意兩個數字 $x_i, x_j$ 的最大公因數
         \end{block}
 
@@ -228,8 +247,12 @@
     \end{frame}
 
     \begin{frame}{例題}
+        \begin{block}{\href{https://atcoder.jp/contests/abc194/tasks/abc194_c}{ABC 194C - Squared Error}}
+            給一個數列 $A_1, A_2, \dots, A_n$，求 $\displaystyle\sum_{i = 2}^{N}{\sum_{j = 1}^{i - 1}{(A_i - A_j) ^ 2}}\ (N \le 3 \cdot 10^5)$
+        \end{block}
+
         \begin{block}{\href{https://cses.fi/problemset/task/1081}{CSES Common Divisors}}
-            給 $n$ 個數字 $x_1, x_2, ..., x_n\ (n \le 2 \times 10^5, x_i \le 10^6)$\\
+            給 $n$ 個數字 $x_1, x_2, \dots , x_n\ (n \le 2 \times 10^5, x_i \le 10^6)$\\
             求出一個最大的數字 $ans$，滿足其為 $x$ 中任意兩個數字 $x_i, x_j$ 的最大公因數
         \end{block}
 
